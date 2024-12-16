@@ -3,6 +3,7 @@ import { findStaticImports, findExports, findTypeExports } from "mlly";
 import { resolve } from "pathe";
 import type { TSConfig } from "pkg-types";
 import type { MkdistOptions } from "../make";
+import { getOutputExtension } from "./index";
 import type { CompilerHost, EmitResult } from "typescript";
 
 export async function normalizeCompilerOptions(
@@ -65,7 +66,10 @@ export function extractDeclarations(
     const dtsFilename = filename.replace(JSX_EXT_RE, ".d.$1ts");
     let contents = vfs.get(dtsFilename) || "";
     if (opts?.addRelativeDeclarationExtensions) {
-      const ext = filename.match(JS_EXT_RE)?.[0].replace(/ts$/, "js") || ".js";
+      const srcExt =
+        filename.match(JS_EXT_RE)?.[0].replace(/ts$/, "js") || ".js";
+      const ext = getOutputExtension(opts);
+
       const imports = findStaticImports(contents);
       const exports = findExports(contents);
       const typeExports = findTypeExports(contents);
@@ -74,7 +78,8 @@ export function extractDeclarations(
           continue;
         }
         const srcPath = resolve(filename, "..", spec.specifier);
-        const srcDtsPath = srcPath + ext.replace(JS_EXT_RE, ".d.$1ts");
+        const srcDtsPath = srcPath + srcExt.replace(JS_EXT_RE, ".d.$1ts");
+
         let specifier = spec.specifier;
         try {
           if (!vfs.get(srcDtsPath)) {

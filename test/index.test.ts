@@ -257,6 +257,71 @@ describe("mkdist", () => {
     `);
   }, 50_000);
 
+  it("mkdist (emit sourcemaps)", async () => {
+    const rootDir = resolve(__dirname, "fixture");
+    const { writtenFiles } = await mkdist({
+      rootDir,
+      esbuild: {
+        sourcemap: "linked",
+      },
+    });
+
+    expect(writtenFiles.sort()).toEqual(
+      [
+        "dist/README.md",
+        "dist/bar.mjs",
+        "dist/bar.mjs.map",
+        "dist/demo.css",
+        "dist/dir-export.mjs",
+        "dist/dir-export.mjs.map",
+        "dist/foo.mjs",
+        "dist/foo.d.ts",
+        "dist/index.mjs",
+        "dist/index.mjs.map",
+        "dist/types.d.ts",
+        "dist/star/index.mjs",
+        "dist/star/index.mjs.map",
+        "dist/star/other.mjs",
+        "dist/star/other.mjs.map",
+        "dist/components/index.mjs",
+        "dist/components/index.mjs.map",
+        "dist/components/blank.vue",
+        "dist/components/js.vue",
+        "dist/components/script-multi-block.vue",
+        "dist/components/script-multi-block.vue.mjs.map",
+        "dist/components/script-setup-ts.vue",
+        "dist/components/script-setup-ts.vue.mjs.map",
+        "dist/components/ts.vue",
+        "dist/components/ts.vue.mjs.map",
+        "dist/components/jsx.mjs",
+        "dist/components/jsx.mjs.map",
+        "dist/components/tsx.mjs",
+        "dist/components/tsx.mjs.map",
+        "dist/bar/index.mjs",
+        "dist/bar/index.mjs.map",
+        "dist/bar/esm.mjs",
+        "dist/ts/test1.mjs",
+        "dist/ts/test1.mjs.map",
+        "dist/ts/test2.mjs",
+        "dist/ts/test2.mjs.map",
+        "dist/nested.css",
+        "dist/prop-types/index.mjs",
+        "dist/prop-types/index.mjs.map",
+      ]
+        .map((f) => resolve(rootDir, f))
+        .sort(),
+    );
+
+    expect(await readFile(resolve(rootDir, "dist/index.mjs"), "utf8")).toMatch(
+      /\n\/\/# sourceMappingURL=index.mjs.map$/,
+    );
+
+    expect(
+      JSON.parse(await readFile(resolve(rootDir, "dist/bar.mjs.map"), "utf8"))
+        .sourcesContent[0],
+    ).toMatch(await readFile(resolve(rootDir, "src/bar.ts"), "utf8"));
+  });
+
   describe("mkdist (sass compilation)", () => {
     const rootDir = resolve(__dirname, "fixture");
     let writtenFiles: string[];

@@ -85,6 +85,10 @@ const main = defineCommand({
       type: "string",
       description: "Target environment (esbuild)",
     },
+    sourcemap: {
+      type: "string",
+      description: "Emit sourcemap (esbuild)",
+    },
   },
   async run({ args }) {
     const { writtenFiles } = await mkdist({
@@ -103,6 +107,7 @@ const main = defineCommand({
         jsxFragment: args.jsxFragment,
         minify: args.minify,
         target: args.target,
+        sourcemap: args.sourcemap,
       },
     } as MkdistOptions);
 

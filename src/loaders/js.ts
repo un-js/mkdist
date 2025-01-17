@@ -1,5 +1,6 @@
 import { transform } from "esbuild";
 import jiti from "jiti";
+import { basename, extname } from "pathe";
 
 import type { Loader, LoaderResult } from "../loader";
 
@@ -18,6 +19,7 @@ export const jsLoader: Loader = async (input, { options }) => {
   const output: LoaderResult = [];
 
   let contents = await input.getContents();
+  let sourceMapping = "";
 
   // declaration
   if (options.declaration && !input.srcPath?.match(DECLARATION_RE)) {
@@ -33,16 +35,28 @@ export const jsLoader: Loader = async (input, { options }) => {
   }
 
   // typescript => js
+  const sourcemap =
+    options.esbuild?.sourcemap === "linked"
+      ? "external"
+      : options.esbuild?.sourcemap;
   if (TS_EXTS.has(input.extension)) {
-    contents = await transform(contents, {
+    const result = await transform(contents, {
       ...options.esbuild,
+      sourcemap,
+      sourcefile: input.srcPath,
       loader: "ts",
-    }).then((r) => r.code);
+    });
+    contents = result.code;
+    sourceMapping = result.map;
   } else if ([".tsx", ".jsx"].includes(input.extension)) {
-    contents = await transform(contents, {
+    const result = await transform(contents, {
       loader: input.extension === ".tsx" ? "tsx" : "jsx",
       ...options.esbuild,
-    }).then((r) => r.code);
+      sourcemap,
+      sourcefile: input.srcPath,
+    });
+    contents = result.code;
+    sourceMapping = result.map;
   }
 
   // esm => cjs
@@ -58,6 +72,22 @@ export const jsLoader: Loader = async (input, { options }) => {
   let extension = isCjs ? ".js" : ".mjs"; // TODO: Default to .cjs in next major version
   if (options.ext) {
     extension = options.ext.startsWith(".") ? options.ext : `.${options.ext}`;
+  }
+
+  // sourcemap
+  if (options.esbuild?.sourcemap && sourceMapping !== "") {
+    if (options.esbuild.sourcemap !== "inline") {
+      output.push({
+        contents: sourceMapping,
+        path: input.path,
+        extension: `${extension}.map`,
+      });
+    }
+
+    if (options.esbuild.sourcemap === "linked") {
+      const sourceMappingURL = `${basename(input.path, extname(input.path))}${extension}.map`;
+      contents += `\n//# sourceMappingURL=${sourceMappingURL}`;
+    }
   }
 
   output.push({

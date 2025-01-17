@@ -106,22 +106,23 @@ describe("mkdist", () => {
     expect(writtenFiles.sort()).toEqual(
       [
         "dist/README.md",
-        "dist/bar.d.ts",
+        "dist/bar.d.mts",
         "dist/bar.mjs",
         "dist/demo.css",
-        "dist/dir-export.d.ts",
+        "dist/dir-export.d.mts",
         "dist/dir-export.mjs",
         "dist/foo.mjs",
         "dist/foo.d.ts",
+        "dist/foo.d.mts",
         "dist/index.mjs",
-        "dist/index.d.ts",
+        "dist/index.d.mts",
         "dist/star/index.mjs",
-        "dist/star/index.d.ts",
+        "dist/star/index.d.mts",
         "dist/star/other.mjs",
-        "dist/star/other.d.ts",
+        "dist/star/other.d.mts",
         "dist/types.d.ts",
         "dist/components/index.mjs",
-        "dist/components/index.d.ts",
+        "dist/components/index.d.mts",
         "dist/components/blank.vue",
         "dist/components/blank.vue.d.ts",
         "dist/components/js.vue",
@@ -134,19 +135,19 @@ describe("mkdist", () => {
         "dist/components/ts.vue.d.ts",
         "dist/components/jsx.mjs",
         "dist/components/tsx.mjs",
-        "dist/components/jsx.d.ts",
-        "dist/components/tsx.d.ts",
+        "dist/components/jsx.d.mts",
+        "dist/components/tsx.d.mts",
         "dist/bar/index.mjs",
-        "dist/bar/index.d.ts",
+        "dist/bar/index.d.mts",
         "dist/bar/esm.mjs",
         "dist/bar/esm.d.mts",
         "dist/ts/test1.mjs",
         "dist/ts/test2.mjs",
         "dist/ts/test1.d.mts",
-        "dist/ts/test2.d.cts",
+        "dist/ts/test2.d.mts",
         "dist/nested.css",
         "dist/prop-types/index.mjs",
-        "dist/prop-types/index.d.ts",
+        "dist/prop-types/index.d.mts",
       ]
         .map((f) => resolve(rootDir, f))
         .sort(),
@@ -156,14 +157,14 @@ describe("mkdist", () => {
       "manual declaration",
     );
 
-    expect(await readFile(resolve(rootDir, "dist/star/index.d.ts"), "utf8"))
+    expect(await readFile(resolve(rootDir, "dist/star/index.d.mts"), "utf8"))
       .toMatchInlineSnapshot(`
         "export * from "./other.js";
         export type { Other } from "./other.js";
         "
       `);
 
-    expect(await readFile(resolve(rootDir, "dist/dir-export.d.ts"), "utf8"))
+    expect(await readFile(resolve(rootDir, "dist/dir-export.d.mts"), "utf8"))
       .toMatchInlineSnapshot(`
         "export { default as bar } from "./bar.js";
         export * from "./star/index.js";
@@ -175,7 +176,7 @@ describe("mkdist", () => {
     ).toMatch("declare");
 
     expect(
-      await readFile(resolve(rootDir, "dist/components/index.d.ts"), "utf8"),
+      await readFile(resolve(rootDir, "dist/components/index.d.mts"), "utf8"),
     ).toMatchInlineSnapshot(`
       "export * as jsx from "./jsx.jsx.js";
       export * as tsx from "./tsx.tsx.js";
@@ -559,22 +560,23 @@ describe("mkdist with vue-tsc v1", () => {
     expect(writtenFiles.sort()).toEqual(
       [
         "dist/README.md",
-        "dist/bar.d.ts",
+        "dist/bar.d.mts",
         "dist/bar.mjs",
         "dist/demo.css",
-        "dist/dir-export.d.ts",
+        "dist/dir-export.d.mts",
         "dist/dir-export.mjs",
         "dist/foo.mjs",
         "dist/foo.d.ts",
+        "dist/foo.d.mts",
         "dist/index.mjs",
-        "dist/index.d.ts",
+        "dist/index.d.mts",
         "dist/star/index.mjs",
-        "dist/star/index.d.ts",
+        "dist/star/index.d.mts",
         "dist/star/other.mjs",
-        "dist/star/other.d.ts",
+        "dist/star/other.d.mts",
         "dist/types.d.ts",
         "dist/components/index.mjs",
-        "dist/components/index.d.ts",
+        "dist/components/index.d.mts",
         "dist/components/blank.vue",
         "dist/components/blank.vue.d.ts",
         "dist/components/js.vue",
@@ -587,19 +589,19 @@ describe("mkdist with vue-tsc v1", () => {
         "dist/components/ts.vue.d.ts",
         "dist/components/jsx.mjs",
         "dist/components/tsx.mjs",
-        "dist/components/jsx.d.ts",
-        "dist/components/tsx.d.ts",
+        "dist/components/jsx.d.mts",
+        "dist/components/tsx.d.mts",
         "dist/bar/index.mjs",
-        "dist/bar/index.d.ts",
+        "dist/bar/index.d.mts",
         "dist/bar/esm.mjs",
         "dist/bar/esm.d.mts",
         "dist/ts/test1.mjs",
         "dist/ts/test2.mjs",
         "dist/ts/test1.d.mts",
-        "dist/ts/test2.d.cts",
+        "dist/ts/test2.d.mts",
         "dist/nested.css",
         "dist/prop-types/index.mjs",
-        "dist/prop-types/index.d.ts",
+        "dist/prop-types/index.d.mts",
       ]
         .map((f) => resolve(rootDir, f))
         .sort(),
@@ -609,7 +611,7 @@ describe("mkdist with vue-tsc v1", () => {
       "manual declaration",
     );
 
-    expect(await readFile(resolve(rootDir, "dist/star/index.d.ts"), "utf8"))
+    expect(await readFile(resolve(rootDir, "dist/star/index.d.mts"), "utf8"))
       .toMatchInlineSnapshot(`
         "export * from "./other.js";
         export type { Other } from "./other.js";
@@ -620,7 +622,7 @@ describe("mkdist with vue-tsc v1", () => {
     ).toMatch("declare");
 
     expect(
-      await readFile(resolve(rootDir, "dist/components/index.d.ts"), "utf8"),
+      await readFile(resolve(rootDir, "dist/components/index.d.mts"), "utf8"),
     ).toMatchInlineSnapshot(`
       "export * as jsx from "./jsx.jsx.js";
       export * as tsx from "./tsx.tsx.js";
@@ -816,22 +818,23 @@ describe("mkdist with vue-tsc ~v2.0.21", () => {
     expect(writtenFiles.sort()).toEqual(
       [
         "dist/README.md",
-        "dist/bar.d.ts",
+        "dist/bar.d.mts",
         "dist/bar.mjs",
         "dist/demo.css",
-        "dist/dir-export.d.ts",
+        "dist/dir-export.d.mts",
         "dist/dir-export.mjs",
         "dist/foo.mjs",
+        "dist/foo.d.mts",
         "dist/foo.d.ts",
         "dist/index.mjs",
-        "dist/index.d.ts",
+        "dist/index.d.mts",
         "dist/star/index.mjs",
-        "dist/star/index.d.ts",
+        "dist/star/index.d.mts",
         "dist/star/other.mjs",
-        "dist/star/other.d.ts",
+        "dist/star/other.d.mts",
         "dist/types.d.ts",
         "dist/components/index.mjs",
-        "dist/components/index.d.ts",
+        "dist/components/index.d.mts",
         "dist/components/blank.vue",
         "dist/components/blank.vue.d.ts",
         "dist/components/js.vue",
@@ -844,19 +847,19 @@ describe("mkdist with vue-tsc ~v2.0.21", () => {
         "dist/components/ts.vue.d.ts",
         "dist/components/jsx.mjs",
         "dist/components/tsx.mjs",
-        "dist/components/jsx.d.ts",
-        "dist/components/tsx.d.ts",
+        "dist/components/jsx.d.mts",
+        "dist/components/tsx.d.mts",
         "dist/bar/index.mjs",
-        "dist/bar/index.d.ts",
+        "dist/bar/index.d.mts",
         "dist/bar/esm.mjs",
         "dist/bar/esm.d.mts",
         "dist/ts/test1.mjs",
         "dist/ts/test2.mjs",
         "dist/ts/test1.d.mts",
-        "dist/ts/test2.d.cts",
+        "dist/ts/test2.d.mts",
         "dist/nested.css",
         "dist/prop-types/index.mjs",
-        "dist/prop-types/index.d.ts",
+        "dist/prop-types/index.d.mts",
       ]
         .map((f) => resolve(rootDir, f))
         .sort(),
@@ -866,7 +869,7 @@ describe("mkdist with vue-tsc ~v2.0.21", () => {
       "manual declaration",
     );
 
-    expect(await readFile(resolve(rootDir, "dist/star/index.d.ts"), "utf8"))
+    expect(await readFile(resolve(rootDir, "dist/star/index.d.mts"), "utf8"))
       .toMatchInlineSnapshot(`
         "export * from "./other.js";
         export type { Other } from "./other.js";
@@ -877,7 +880,7 @@ describe("mkdist with vue-tsc ~v2.0.21", () => {
     ).toMatch("declare");
 
     expect(
-      await readFile(resolve(rootDir, "dist/components/index.d.ts"), "utf8"),
+      await readFile(resolve(rootDir, "dist/components/index.d.mts"), "utf8"),
     ).toMatchInlineSnapshot(`
       "export * as jsx from "./jsx.jsx.js";
       export * as tsx from "./tsx.tsx.js";

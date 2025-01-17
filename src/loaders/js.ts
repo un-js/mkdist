@@ -2,6 +2,7 @@ import { transform } from "esbuild";
 import jiti from "jiti";
 
 import type { Loader, LoaderResult } from "../loader";
+import { getOutputExtension } from "../utils";
 
 const DECLARATION_RE = /\.d\.[cm]?ts$/;
 const CM_LETTER_RE = /(?<=\.)(c|m)(?=[jt]s$)/;
@@ -55,10 +56,7 @@ export const jsLoader: Loader = async (input, { options }) => {
       .replace("module.exports = void 0;", "");
   }
 
-  let extension = isCjs ? ".js" : ".mjs"; // TODO: Default to .cjs in next major version
-  if (options.ext) {
-    extension = options.ext.startsWith(".") ? options.ext : `.${options.ext}`;
-  }
+  const extension = getOutputExtension(options);
 
   output.push({
     contents,

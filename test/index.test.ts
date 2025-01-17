@@ -158,6 +158,168 @@ describe("mkdist", () => {
 
     expect(await readFile(resolve(rootDir, "dist/star/index.d.ts"), "utf8"))
       .toMatchInlineSnapshot(`
+        "export * from "./other.mjs";
+        export type { Other } from "./other.mjs";
+        "
+      `);
+
+    expect(await readFile(resolve(rootDir, "dist/dir-export.d.ts"), "utf8"))
+      .toMatchInlineSnapshot(`
+        "export { default as bar } from "./bar.mjs";
+        export * from "./star/index.mjs";
+        "
+      `);
+
+    expect(
+      await readFile(resolve(rootDir, "dist/bar/esm.d.mts"), "utf8"),
+    ).toMatch("declare");
+
+    expect(
+      await readFile(resolve(rootDir, "dist/components/index.d.ts"), "utf8"),
+    ).toMatchInlineSnapshot(`
+      "export * as jsx from "./jsx.jsx.mjs";
+      export * as tsx from "./tsx.tsx.mjs";
+      export * as blank from "./blank.vue.mjs";
+      export * as scriptSetupTS from "./script-setup-ts.vue.mjs";
+      export * as scriptMultiBlock from "./script-multi-block.vue.mjs";
+      export * as ts from "./ts.vue.mjs";
+      "
+    `);
+
+    expect(
+      await readFile(resolve(rootDir, "dist/components/ts.vue.d.ts"), "utf8"),
+    ).toMatchInlineSnapshot(`
+      "declare const _default: import("vue").DefineComponent<{}, {}, {
+          test: string;
+          str: "test";
+      }, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<{}> & Readonly<{}>, {}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
+      export default _default;
+      "
+    `);
+
+    expect(
+      await readFile(
+        resolve(rootDir, "dist/components/blank.vue.d.ts"),
+        "utf8",
+      ),
+    ).toMatchInlineSnapshot(`
+      "declare const _default: import("vue").DefineComponent<{}, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<{}> & Readonly<{}>, {}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
+      export default _default;
+      "
+    `);
+
+    expect(
+      await readFile(
+        resolve(rootDir, "dist/components/script-multi-block.vue.d.ts"),
+        "utf8",
+      ),
+    ).toMatchInlineSnapshot(`
+      "interface MyComponentProps {
+          msg: string;
+      }
+      declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<__VLS_TypePropsToOption<MyComponentProps>>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<__VLS_TypePropsToOption<MyComponentProps>>> & Readonly<{}>, {}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
+      export default _default;
+      type __VLS_NonUndefinedable<T> = T extends undefined ? never : T;
+      type __VLS_TypePropsToOption<T> = {
+          [K in keyof T]-?: {} extends Pick<T, K> ? {
+              type: import('vue').PropType<__VLS_NonUndefinedable<T[K]>>;
+          } : {
+              type: import('vue').PropType<T[K]>;
+              required: true;
+          };
+      };
+      "
+    `);
+
+    expect(
+      await readFile(
+        resolve(rootDir, "dist/components/script-setup-ts.vue.d.ts"),
+        "utf8",
+      ),
+    ).toMatchInlineSnapshot(`
+      "import { Color } from "#prop-types";
+      type __VLS_Props = {
+          msg: string;
+          color: Color;
+      };
+      declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<__VLS_TypePropsToOption<__VLS_Props>>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<__VLS_TypePropsToOption<__VLS_Props>>> & Readonly<{}>, {}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
+      export default _default;
+      type __VLS_NonUndefinedable<T> = T extends undefined ? never : T;
+      type __VLS_TypePropsToOption<T> = {
+          [K in keyof T]-?: {} extends Pick<T, K> ? {
+              type: import('vue').PropType<__VLS_NonUndefinedable<T[K]>>;
+          } : {
+              type: import('vue').PropType<T[K]>;
+              required: true;
+          };
+      };
+      "
+    `);
+  }, 50_000);
+
+  it("mkdist (emit types) [js]", async () => {
+    const rootDir = resolve(__dirname, "fixture");
+    const { writtenFiles } = await mkdist({
+      rootDir,
+      declaration: true,
+      addRelativeDeclarationExtensions: true,
+      ext: "js",
+    });
+    expect(writtenFiles.sort()).toEqual(
+      [
+        "dist/README.md",
+        "dist/bar.d.ts",
+        "dist/bar.js",
+        "dist/demo.css",
+        "dist/dir-export.d.ts",
+        "dist/dir-export.js",
+        "dist/foo.js",
+        "dist/foo.d.ts",
+        "dist/index.js",
+        "dist/index.d.ts",
+        "dist/star/index.js",
+        "dist/star/index.d.ts",
+        "dist/star/other.js",
+        "dist/star/other.d.ts",
+        "dist/types.d.ts",
+        "dist/components/index.js",
+        "dist/components/index.d.ts",
+        "dist/components/blank.vue",
+        "dist/components/blank.vue.d.ts",
+        "dist/components/js.vue",
+        "dist/components/js.vue.d.ts",
+        "dist/components/script-multi-block.vue",
+        "dist/components/script-multi-block.vue.d.ts",
+        "dist/components/script-setup-ts.vue",
+        "dist/components/script-setup-ts.vue.d.ts",
+        "dist/components/ts.vue",
+        "dist/components/ts.vue.d.ts",
+        "dist/components/jsx.js",
+        "dist/components/tsx.js",
+        "dist/components/jsx.d.ts",
+        "dist/components/tsx.d.ts",
+        "dist/bar/index.js",
+        "dist/bar/index.d.ts",
+        "dist/bar/esm.js",
+        "dist/bar/esm.d.mts",
+        "dist/ts/test1.js",
+        "dist/ts/test2.js",
+        "dist/ts/test1.d.mts",
+        "dist/ts/test2.d.cts",
+        "dist/nested.css",
+        "dist/prop-types/index.js",
+        "dist/prop-types/index.d.ts",
+      ]
+        .map((f) => resolve(rootDir, f))
+        .sort(),
+    );
+
+    expect(await readFile(resolve(rootDir, "dist/foo.d.ts"), "utf8")).toMatch(
+      "manual declaration",
+    );
+
+    expect(await readFile(resolve(rootDir, "dist/star/index.d.ts"), "utf8"))
+      .toMatchInlineSnapshot(`
         "export * from "./other.js";
         export type { Other } from "./other.js";
         "
@@ -611,8 +773,8 @@ describe("mkdist with vue-tsc v1", () => {
 
     expect(await readFile(resolve(rootDir, "dist/star/index.d.ts"), "utf8"))
       .toMatchInlineSnapshot(`
-        "export * from "./other.js";
-        export type { Other } from "./other.js";
+        "export * from "./other.mjs";
+        export type { Other } from "./other.mjs";
         "
       `);
     expect(
@@ -622,12 +784,12 @@ describe("mkdist with vue-tsc v1", () => {
     expect(
       await readFile(resolve(rootDir, "dist/components/index.d.ts"), "utf8"),
     ).toMatchInlineSnapshot(`
-      "export * as jsx from "./jsx.jsx.js";
-      export * as tsx from "./tsx.tsx.js";
-      export * as blank from "./blank.vue.js";
-      export * as scriptSetupTS from "./script-setup-ts.vue.js";
-      export * as scriptMultiBlock from "./script-multi-block.vue.js";
-      export * as ts from "./ts.vue.js";
+      "export * as jsx from "./jsx.jsx.mjs";
+      export * as tsx from "./tsx.tsx.mjs";
+      export * as blank from "./blank.vue.mjs";
+      export * as scriptSetupTS from "./script-setup-ts.vue.mjs";
+      export * as scriptMultiBlock from "./script-multi-block.vue.mjs";
+      export * as ts from "./ts.vue.mjs";
       "
     `);
 
@@ -868,8 +1030,8 @@ describe("mkdist with vue-tsc ~v2.0.21", () => {
 
     expect(await readFile(resolve(rootDir, "dist/star/index.d.ts"), "utf8"))
       .toMatchInlineSnapshot(`
-        "export * from "./other.js";
-        export type { Other } from "./other.js";
+        "export * from "./other.mjs";
+        export type { Other } from "./other.mjs";
         "
       `);
     expect(
@@ -879,12 +1041,12 @@ describe("mkdist with vue-tsc ~v2.0.21", () => {
     expect(
       await readFile(resolve(rootDir, "dist/components/index.d.ts"), "utf8"),
     ).toMatchInlineSnapshot(`
-      "export * as jsx from "./jsx.jsx.js";
-      export * as tsx from "./tsx.tsx.js";
-      export * as blank from "./blank.vue.js";
-      export * as scriptSetupTS from "./script-setup-ts.vue.js";
-      export * as scriptMultiBlock from "./script-multi-block.vue.js";
-      export * as ts from "./ts.vue.js";
+      "export * as jsx from "./jsx.jsx.mjs";
+      export * as tsx from "./tsx.tsx.mjs";
+      export * as blank from "./blank.vue.mjs";
+      export * as scriptSetupTS from "./script-setup-ts.vue.mjs";
+      export * as scriptMultiBlock from "./script-multi-block.vue.mjs";
+      export * as ts from "./ts.vue.mjs";
       "
     `);
 

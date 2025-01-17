@@ -1,5 +1,10 @@
 import { statSync } from "node:fs";
-import { findStaticImports, findExports, findTypeExports } from "mlly";
+import {
+  findStaticImports,
+  findDynamicImports,
+  findExports,
+  findTypeExports,
+} from "mlly";
 import { resolve } from "pathe";
 import type { TSConfig } from "pkg-types";
 import type { MkdistOptions } from "../make";
@@ -69,7 +74,29 @@ export function extractDeclarations(
       const imports = findStaticImports(contents);
       const exports = findExports(contents);
       const typeExports = findTypeExports(contents);
-      for (const spec of [...exports, ...typeExports, ...imports]) {
+      const dynamicImports = findDynamicImports(contents).map(
+        (dynamicImport) => {
+          let specifier: string | undefined;
+          try {
+            const value = JSON.parse(dynamicImport.expression);
+            if (typeof value === "string") {
+              specifier = value;
+            }
+          } catch {
+            // ignore the error
+          }
+          return {
+            code: dynamicImport.code,
+            specifier,
+          };
+        },
+      );
+      for (const spec of [
+        ...exports,
+        ...typeExports,
+        ...imports,
+        ...dynamicImports,
+      ]) {
         if (!spec.specifier || !RELATIVE_RE.test(spec.specifier)) {
           continue;
         }

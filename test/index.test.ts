@@ -160,6 +160,7 @@ describe("mkdist", () => {
       .toMatchInlineSnapshot(`
         "export * from "./other.js";
         export type { Other } from "./other.js";
+        export declare function wonder(twinkle: import("./other.js").Other): string;
         "
       `);
 
@@ -613,6 +614,7 @@ describe("mkdist with vue-tsc v1", () => {
       .toMatchInlineSnapshot(`
         "export * from "./other.js";
         export type { Other } from "./other.js";
+        export declare function wonder(twinkle: import("./other.js").Other): string;
         "
       `);
     expect(
@@ -870,6 +872,7 @@ describe("mkdist with vue-tsc ~v2.0.21", () => {
       .toMatchInlineSnapshot(`
         "export * from "./other.js";
         export type { Other } from "./other.js";
+        export declare function wonder(twinkle: import("./other.js").Other): string;
         "
       `);
     expect(

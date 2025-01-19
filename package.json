@@ -48,6 +48,7 @@
     "@types/semver": "^7.5.8",
     "@vitest/coverage-v8": "^3.0.2",
     "@volar/typescript": "^2.4.11",
+    "@vue/compiler-dom-types": "npm:@vue/compiler-dom@^3.5.13",
     "@vue/language-core": "^2.2.0",
     "@vue/language-core2.0": "npm:@vue/language-core@2.0.29",
     "c8": "latest",

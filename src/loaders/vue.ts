@@ -6,6 +6,7 @@ import type {
   LoaderResult,
   OutputFile,
 } from "../loader";
+import { transpileVueTemplate } from "../utils/vue";
 
 export interface DefineVueLoaderOptions {
   blockLoaders?: {
@@ -61,33 +62,75 @@ export function defineVueLoader(options?: DefineVueLoaderOptions): Loader {
     const addOutput = (...files: OutputFile[]) => output.push(...files);
 
     const blocks: VueBlock[] = [
-      sfc.descriptor.template,
       ...sfc.descriptor.styles,
       ...sfc.descriptor.customBlocks,
     ].filter((item) => !!item);
-    // merge script blocks
-    if (sfc.descriptor.script || sfc.descriptor.scriptSetup) {
-      // need to compile script when using typescript with <script setup>
-      if (sfc.descriptor.scriptSetup && sfc.descriptor.scriptSetup.lang) {
-        const merged = compileScript(sfc.descriptor, { id: input.srcPath });
-        merged.setup = false;
-        merged.attrs = toOmit(merged.attrs, "setup");
-        blocks.unshift(merged);
+
+    // we need to transpile script when using <script setup> and typescript
+    // and we need to transpile template because <template> can't access variables in setup after transpiled
+    const requireTranspile = !!sfc.descriptor.scriptSetup?.lang;
+
+    // we also need to remove typescript from template block
+    const requireTranspileTemplate = [
+      sfc.descriptor.script,
+      sfc.descriptor.scriptSetup,
+    ].some((block) => !!block?.lang);
+
+    if (sfc.descriptor.template && !requireTranspile) {
+      if (requireTranspileTemplate) {
+        const transformed = await transpileVueTemplate(
+          // for lower version of @vue/compiler-sfc, `ast.source` is the whole .vue file
+          sfc.descriptor.template.content,
+          sfc.descriptor.template.ast,
+          async (code) => {
+            const res = await context.loadFile({
+              getContents: () => code,
+              path: `${input.path}.ts`,
+              srcPath: `${input.srcPath}.ts`,
+              extension: ".ts",
+            });
+
+            return (
+              res.find((f) => [".js", ".mjs", ".cjs"].includes(f.extension))
+                ?.contents || code
+            );
+          },
+        );
+        blocks.unshift({
+          type: "template",
+          content: transformed,
+          attrs: sfc.descriptor.template.attrs,
+        });
       } else {
-        const scriptBlocks = [
-          sfc.descriptor.script,
-          sfc.descriptor.scriptSetup,
-        ].filter((item) => !!item);
-        blocks.unshift(...scriptBlocks);
+        blocks.unshift(sfc.descriptor.template);
       }
-    } else {
-      // push a fake script block to generate dts
-      blocks.unshift({
-        type: "script",
-        content: "export default {}",
-        attrs: {},
+    }
+
+    if (requireTranspile) {
+      // merge script blocks and template block
+      const merged = compileScript(sfc.descriptor, {
+        id: input.srcPath,
+        inlineTemplate: true,
       });
-      fakeScriptBlock = true;
+      merged.setup = false;
+      merged.attrs = toOmit(merged.attrs, "setup");
+      blocks.unshift(merged);
+    } else {
+      const scriptBlocks = [
+        sfc.descriptor.script,
+        sfc.descriptor.scriptSetup,
+      ].filter((item) => !!item);
+      blocks.unshift(...scriptBlocks);
+
+      if (scriptBlocks.length === 0) {
+        // push a fake script block to generate dts
+        blocks.unshift({
+          type: "script",
+          content: "export default {}",
+          attrs: {},
+        });
+        fakeScriptBlock = true;
+      }
     }
 
     const results = await Promise.all(
